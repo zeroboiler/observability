@@ -1,0 +1,27 @@
+includes:
+    - vendor/pestphp/pest/phpstan-baseline.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+        - tests
+
+    bootstrapFiles:
+        - tests/bootstrap.php
+
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+    strictRules:
+        allRules: true
+
+    typeAliases:
+        TraceId: string
+        SpanId: string
+
+    ignoreErrors:
+        - '#Unsafe usage of new static#'
+
+    universalObjectCratesClasses:
+        - stdClass

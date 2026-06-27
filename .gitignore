@@ -1,0 +1,11 @@
+/vendor/
+composer.lock
+.phpunit.result.cache
+.phpstan.cache
+phpstan-baseline.neon
+rector.php.cache
+/.idea/
+/.vscode/
+*.log
+coverage.xml
+.nova/

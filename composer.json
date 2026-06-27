@@ -1,0 +1,81 @@
+{
+    "name": "zeroboiler/observability",
+    "description": "OpenTelemetry-based observability for Laravel: traces, metrics, logs, and health checks",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "observability",
+        "opentelemetry",
+        "otel",
+        "tracing",
+        "metrics",
+        "health-checks",
+        "laravel",
+        "zeroboiler"
+    ],
+    "authors": [
+        {
+            "name": "AI Kankim",
+            "email": "ai@zeroboiler.dev"
+        }
+    ],
+    "require": {
+        "php": "^8.5",
+        "illuminate/support": "^13.0",
+        "illuminate/contracts": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/queue": "^13.0",
+        "illuminate/redis": "^13.0",
+        "illuminate/mail": "^13.0",
+        "illuminate/cache": "^13.0",
+        "open-telemetry/sdk": "^1.0",
+        "open-telemetry/api": "^1.0",
+        "open-telemetry/exporter-otlp": "^1.0",
+        "open-telemetry/exporter-zipkin": "^1.0",
+        "open-telemetry/exporter-jaeger": "^1.0",
+        "open-telemetry/instrumentation": "^1.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "larastan/larastan": "^3.0",
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^12.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "rector/rector": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ZeroBoiler\\Observability\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZeroBoiler\\Observability\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ZeroBoiler\\Observability\\ObservabilityServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "test:coverage": "pest --coverage",
+        "lint": "pint",
+        "lint:fix": "pint",
+        "analyse": "phpstan analyse",
+        "rector": "rector process"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

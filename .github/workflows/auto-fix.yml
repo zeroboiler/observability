@@ -1,0 +1,38 @@
+name: Auto-fix
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  auto-fix:
+    name: Auto-fix
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'ai-kankim'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, xml, ctype, json, bcmath
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run Pint
+        run: ./vendor/bin/pint
+
+      - name: Run Rector
+        run: ./vendor/bin/rector process
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: auto-fix code style"
+          git push
