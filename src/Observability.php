@@ -6,10 +6,11 @@ namespace ZeroBoiler\Observability;
 
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Log;
-use OpenTelemetry\API	race\SpanInterface;
 use OpenTelemetry\API\Trace\SpanBuilderInterface;
 use OpenTelemetry\API\Trace\SpanContextInterface;
 use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\SDK\Common\Export\Stream\StreamTransport;
+use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Trace\TracerProviderInterface;
 use OpenTelemetry\Contrib\Otlp\SpanExporter;
@@ -17,7 +18,7 @@ use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
 use OpenTelemetry\Contrib\Otlp\OtlpGrpcTransportFactory;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
-use OpenTelemetry\SDK\Trace\Exporter\ConsoleSpanExporter;
+use OpenTelemetry\SDK\Trace\SpanExporter\ConsoleSpanExporter;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use OpenTelemetry\SDK\Common\Export\TransportFactoryInterface;
 
@@ -39,13 +40,13 @@ final class Observability
             return;
         }
 
-        $resource = ResourceInfo::create([
+        $resource = ResourceInfo::create(Attributes::create([
             'service.name' => config('zeroboiler.observability.service_name', config('app.name', 'laravel')),
             'service.version' => config('zeroboiler.observability.service_version', '1.0.0'),
             'deployment.environment' => config('app.env', 'production'),
             'telemetry.sdk.name' => 'zeroboiler-observability',
             'telemetry.sdk.version' => '1.0.0',
-        ]);
+        ]));
 
         $exporter = $this->createExporter();
 
@@ -73,7 +74,7 @@ final class Observability
 
         return match ($exporterType) {
             'otlp' => $this->createOtlpExporter(),
-            'console' => new ConsoleSpanExporter(),
+            'console' => new ConsoleSpanExporter(new StreamTransport(fopen('php://stdout', 'w'), 'application/x-protobuf')),
             default => throw new \InvalidArgumentException("Unsupported exporter type: {$exporterType}"),
         };
     }

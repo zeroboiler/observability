@@ -2,16 +2,90 @@
 
 declare(strict_types=1);
 
-use Pest\Platform\Ignorable;
+use Illuminate\Config\Repository;
+use Illuminate\Support\Facades\Facade;
+use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use ZeroBoiler\Observability\ObservabilityServiceProvider;
 
 /*
 |--------------------------------------------------------------------------
-| Test Case
+| Test bootstrap
 |--------------------------------------------------------------------------
 */
 
-uses(ZeroBoiler\Observability\Tests\TestCase::class)
-    ->in(__DIR__);
+$app = new Application(
+    $_ENV['APP_NAME'] ?? 'ZeroBoiler Observability Test',
+);
+
+$app->instance('config', new Repository([
+    'app' => [
+        'env' => 'testing',
+        'debug' => true,
+        'key' => 'base64:dGhpcyBpcyBhIHRlc3Qga2V5IGZvciB6ZXJvYm9pbGVy',
+        'cipher' => 'AES-256-CBC',
+    ],
+    'database' => [
+        'default' => 'sqlite',
+        'connections' => [
+            'sqlite' => [
+                'driver' => 'sqlite',
+                'database' => ':memory:',
+            ],
+        ],
+    ],
+    'logging' => [
+        'default' => 'stack',
+        'channels' => [
+            'stack' => [
+                'driver' => 'stack',
+                'channels' => ['single'],
+            ],
+            'single' => [
+                'driver' => 'single',
+                'path' => '/dev/null',
+            ],
+        ],
+    ],
+    'zeroboiler' => [
+        'observability' => [
+            'enabled' => true,
+            'service_name' => 'zeroboiler-test',
+            'service_namespace' => 'zeroboiler',
+            'exporter' => [
+                'type' => 'console',
+                'batch_enabled' => false,
+            ],
+            'auto_instrumentation' => [
+                'enabled' => false,
+            ],
+            'logging' => [
+                'bridge_enabled' => false,
+            ],
+        ],
+    ],
+]));
+
+// Set base path
+$app->setBasePath(__DIR__ . '/..');
+
+// Bind console kernel for Artisan facade
+$app->singleton(ConsoleKernelContract::class, ConsoleKernel::class);
+
+// Bind exception handler for console commands
+$app->singleton(\Illuminate\Contracts\Debug\ExceptionHandler::class, \Illuminate\Foundation\Exceptions\Handler::class);
+
+// Set facade application before boot so facades work during service provider boot
+Facade::setFacadeApplication($app);
+
+// Register the service provider
+$app->register(ObservabilityServiceProvider::class);
+
+// Boot the application manually
+$app->boot();
+
+date_default_timezone_set('UTC');
 
 /*
 |--------------------------------------------------------------------------

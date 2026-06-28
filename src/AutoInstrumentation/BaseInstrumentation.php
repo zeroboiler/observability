@@ -14,7 +14,12 @@ abstract class BaseInstrumentation
 
     public function isEnabled(): bool
     {
-        return config('zeroboiler.observability.auto_instrumentation.' . $this->getKey(), true);
+        // Global switch takes precedence - if auto instrumentation is off, nothing runs
+        if (! config('zeroboiler.observability.auto_instrumentation.enabled', true)) {
+            return false;
+        }
+
+        return (bool) config('zeroboiler.observability.auto_instrumentation.' . $this->getKey() . '.enabled', true);
     }
 
     abstract protected function getKey(): string;

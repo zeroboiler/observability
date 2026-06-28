@@ -19,10 +19,9 @@ final class OtelTracer implements TracerInterface
         $this->innerTracer = $innerTracer;
     }
 
-    #[\Override]
     public function spanBuilder(string $spanName): SpanBuilderInterface
     {
-        return new SpanBuilder($this->innerTracer->spanBuilder($spanName));
+        return $this->innerTracer->spanBuilder($spanName);
     }
 
     public function getCurrentSpan(): Span
@@ -38,5 +37,10 @@ final class OtelTracer implements TracerInterface
     public function spanId(): ?string
     {
         return Span::current()->getContext()->getSpanId();
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->innerTracer->isEnabled();
     }
 }

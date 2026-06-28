@@ -6,6 +6,7 @@ namespace ZeroBoiler\Observability;
 
 use OpenTelemetry\SDK\Metrics\MeterProvider;
 use OpenTelemetry\SDK\Metrics\MeterProviderFactory;
+use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 
 final class MetricsRegistry
@@ -19,10 +20,10 @@ final class MetricsRegistry
 
     public function __construct()
     {
-        $resource = ResourceInfo::create([
+        $resource = ResourceInfo::create(Attributes::create([
             'service.name' => config('zeroboiler.observability.service_name', config('app.name', 'laravel')),
             'service.version' => config('zeroboiler.observability.service_version', '1.0.0'),
-        ]);
+        ]));
 
         $factory = new MeterProviderFactory();
         $this->meterProvider = $factory->create($resource);

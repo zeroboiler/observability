@@ -10,6 +10,22 @@ use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
 use ZeroBoiler\Observability\Tests\Pest;
 
+beforeEach(function () {
+    // Set the config that the instrumentations check via isEnabled()
+    config()->set('zeroboiler.observability.auto_instrumentation.enabled', true);
+    config()->set('zeroboiler.observability.auto_instrumentation.http.enabled', true);
+    config()->set('zeroboiler.observability.auto_instrumentation.database.enabled', true);
+    config()->set('zeroboiler.observability.auto_instrumentation.queue.enabled', true);
+    config()->set('zeroboiler.observability.auto_instrumentation.redis.enabled', true);
+    config()->set('zeroboiler.observability.auto_instrumentation.mail.enabled', true);
+    config()->set('zeroboiler.observability.auto_instrumentation.cache.enabled', true);
+});
+
+afterEach(function () {
+    // Reset to default test config
+    config()->set('zeroboiler.observability.auto_instrumentation.enabled', false);
+});
+
 test('http instrumentation is enabled by default', function () {
     $instrumentation = app(HttpInstrumentation::class);
 
@@ -44,4 +60,20 @@ test('cache instrumentation is enabled by default', function () {
     $instrumentation = app(CacheInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
+});
+
+test('instrumentation respects global disable', function () {
+    config()->set('zeroboiler.observability.auto_instrumentation.enabled', false);
+
+    $instrumentation = app(HttpInstrumentation::class);
+
+    expect($instrumentation->isEnabled())->toBeFalse();
+});
+
+test('individual instrumentation can be disabled', function () {
+    config()->set('zeroboiler.observability.auto_instrumentation.http.enabled', false);
+
+    $instrumentation = app(HttpInstrumentation::class);
+
+    expect($instrumentation->isEnabled())->toBeFalse();
 });

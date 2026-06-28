@@ -19,7 +19,6 @@ use ZeroBoiler\Observability\Console\Commands\ObservabilityFlushCommand;
 
 final class ObservabilityServiceProvider extends ServiceProvider
 {
-    #[\Override]
     public function register(): void
     {
         $this->mergeConfigFrom(
@@ -39,7 +38,6 @@ final class ObservabilityServiceProvider extends ServiceProvider
         $this->registerFacades();
     }
 
-    #[\Override]
     public function boot(): void
     {
         $this->publishes([

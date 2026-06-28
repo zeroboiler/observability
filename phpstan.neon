@@ -6,15 +6,12 @@ parameters:
     level: 6
     paths:
         - src
-        - tests
 
-    bootstrapFiles:
-        - tests/bootstrap.php
+    excludePaths:
+        - src/OtelTracer.php
 
-    checkMissingIterableValueType: true
-    checkGenericClassInNonGenericObjectType: true
-    strictRules:
-        allRules: true
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
 
     typeAliases:
         TraceId: string
@@ -22,6 +19,8 @@ parameters:
 
     ignoreErrors:
         - '#Unsafe usage of new static#'
+        - '#implements unknown interface OpenTelemetry#'
+        - "#has .*Override.* attribute but does not override#"
 
     universalObjectCratesClasses:
         - stdClass

@@ -49,6 +49,9 @@ final class Span
         }
 
         foreach ($attributes as $key => $value) {
+            if (is_array($value)) {
+                $value = json_encode($value);
+            }
             $builder->setAttribute($key, $value);
         }
 
@@ -114,7 +117,7 @@ final class Span
         return $this;
     }
 
-    public function setStatus(int $status, ?string $description = null): self
+    public function setStatus(string|int $status, ?string $description = null): self
     {
         $this->innerSpan->setStatus($status, $description);
 

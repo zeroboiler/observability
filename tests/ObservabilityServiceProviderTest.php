@@ -11,7 +11,8 @@ test('service provider registers observability', function () {
     $provider = new ObservabilityServiceProvider($app);
     $provider->register();
 
-    expect($app->has(ObservabilityServiceProvider::class))->toBeTrue();
+    expect($app->has(\ZeroBoiler\Observability\Observability::class))->toBeTrue();
+    expect($app->bound('observability'))->toBeTrue();
 });
 
 test('service provider registers health checker', function () {

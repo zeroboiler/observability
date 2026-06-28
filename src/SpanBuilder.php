@@ -12,9 +12,23 @@ final class SpanBuilder
 {
     private OtelSpanBuilderInterface $innerBuilder;
 
+    private ?int $spanKind = null;
+
     public function __construct(OtelSpanBuilderInterface $builder)
     {
         $this->innerBuilder = $builder;
+    }
+
+    /**
+     * Set the span kind (SERVER, CLIENT, INTERNAL, CONSUMER, PRODUCER).
+     *
+     * Uses OpenTelemetry span kind constants from SpanKind.
+     */
+    public function setSpanKind(int $kind): self
+    {
+        $this->spanKind = $kind;
+
+        return $this;
     }
 
     public function setParent(ContextInterface $context): self
@@ -67,6 +81,10 @@ final class SpanBuilder
 
     public function startSpan(): Span
     {
+        if ($this->spanKind !== null) {
+            $this->innerBuilder->setSpanKind($this->spanKind);
+        }
+
         return new Span($this->innerBuilder->startSpan());
     }
 }

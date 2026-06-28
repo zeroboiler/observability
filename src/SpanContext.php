@@ -20,4 +20,9 @@ readonly class SpanContext
         $this->isValid = $innerContext->isValid();
         $this->isRemote = $innerContext->isRemote();
     }
+
+    public function isValid(): bool
+    {
+        return $this->isValid;
+    }
 }

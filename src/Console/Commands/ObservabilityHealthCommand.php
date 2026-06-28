@@ -6,6 +6,7 @@ namespace ZeroBoiler\Observability\Console\Commands;
 
 use Illuminate\Console\Command;
 use ZeroBoiler\Observability\HealthChecker;
+use ZeroBoiler\Observability\HealthResult;
 
 final class ObservabilityHealthCommand extends Command
 {
