@@ -15,6 +15,7 @@ use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityHealthCommand;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityTraceTestCommand;
+use ZeroBoiler\Observability\Console\Commands\ObservabilityFlushCommand;
 
 final class ObservabilityServiceProvider extends ServiceProvider
 {
@@ -49,6 +50,7 @@ final class ObservabilityServiceProvider extends ServiceProvider
             $this->commands([
                 ObservabilityHealthCommand::class,
                 ObservabilityTraceTestCommand::class,
+                ObservabilityFlushCommand::class,
             ]);
         }
 

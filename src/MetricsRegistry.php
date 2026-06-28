@@ -60,4 +60,18 @@ final class MetricsRegistry
     {
         $this->meterProvider->forceFlush();
     }
+
+    /**
+     * Reset all cached metric instances.
+     *
+     * In long-running processes (Octane/FrankenPHP), cached Counter/Gauge/Histogram
+     * instances can become stale. This clears the local cache so subsequent calls
+     * create fresh instances from the meter.
+     */
+    public function reset(): void
+    {
+        $this->counters = [];
+        $this->gauges = [];
+        $this->histograms = [];
+    }
 }
