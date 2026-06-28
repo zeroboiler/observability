@@ -6,7 +6,7 @@ use ZeroBoiler\Observability\HealthChecker;
 use ZeroBoiler\Observability\HealthResult;
 use ZeroBoiler\Observability\Tests\Pest;
 
-test('liveness check passes', function () {
+test('liveness check passes', function (): void {
     $checker = app(HealthChecker::class);
     $result = $checker->liveness();
 
@@ -16,7 +16,7 @@ test('liveness check passes', function () {
     expect($result->checks)->toHaveKey('app');
 });
 
-test('readiness check passes', function () {
+test('readiness check passes', function (): void {
     $checker = app(HealthChecker::class);
     $result = $checker->readiness();
 
@@ -26,7 +26,7 @@ test('readiness check passes', function () {
     expect($result->checks)->toHaveKey('queue');
 });
 
-test('startup check passes', function () {
+test('startup check passes', function (): void {
     $checker = app(HealthChecker::class);
     $result = $checker->startup();
 

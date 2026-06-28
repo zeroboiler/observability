@@ -6,7 +6,7 @@ namespace ZeroBoiler\Observability;
 
 use OpenTelemetry\API\Metrics\CounterInterface;
 
-final class Counter
+final readonly class Counter
 {
     public function __construct(
         private CounterInterface $counter,

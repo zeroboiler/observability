@@ -10,13 +10,10 @@ use OpenTelemetry\Context\ContextInterface;
 
 final class SpanBuilder
 {
-    private OtelSpanBuilderInterface $innerBuilder;
-
     private ?int $spanKind = null;
 
-    public function __construct(OtelSpanBuilderInterface $builder)
+    public function __construct(private readonly OtelSpanBuilderInterface $innerBuilder)
     {
-        $this->innerBuilder = $builder;
     }
 
     /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\AutoInstrumentation;
 
+use Illuminate\Foundation\Http\Events\RequestHandled;
+use Illuminate\Contracts\Http\Kernel;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -28,7 +30,7 @@ final class HttpInstrumentation extends BaseInstrumentation
 
         // Keep listening to RequestHandled for response attributes enrichment
         // (status code, content length) — but the span is started in middleware.
-        Event::listen(\Illuminate\Foundation\Http\Events\RequestHandled::class, function ($event): void {
+        Event::listen(RequestHandled::class, function ($event): void {
             $span = Span::current();
 
             if (! $span->isRecording()) {
@@ -38,7 +40,7 @@ final class HttpInstrumentation extends BaseInstrumentation
             $response = $event->response;
 
             $span->setAttribute('http.status_code', $response->getStatusCode());
-            $span->setAttribute('http.response_content_length', strlen($response->getContent()));
+            $span->setAttribute('http.response_content_length', strlen((string) $response->getContent()));
 
             if ($response->getStatusCode() >= 500) {
                 $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
@@ -60,7 +62,7 @@ final class HttpInstrumentation extends BaseInstrumentation
             return;
         }
 
-        $kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class);
+        $kernel = $this->app->make(Kernel::class);
 
         $kernel->prependMiddleware(HttpTracingMiddleware::class);
     }

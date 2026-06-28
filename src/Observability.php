@@ -27,7 +27,9 @@ use function OpenTelemetry\SDK\Util\shutdown;
 final class Observability
 {
     private TracerProviderInterface $tracerProvider;
+
     private OtelTracer $tracer;
+
     private bool $initialized = false;
 
     public function __construct(
@@ -61,7 +63,7 @@ final class Observability
 
         $this->tracer = new OtelTracer($this->tracerProvider->getTracer('zeroboiler-observability'));
 
-        register_shutdown_function(function () use ($processor) {
+        register_shutdown_function(function () use ($processor): void {
             $processor->shutdown();
         });
 
@@ -75,7 +77,7 @@ final class Observability
         return match ($exporterType) {
             'otlp' => $this->createOtlpExporter(),
             'console' => new ConsoleSpanExporter(new StreamTransport(fopen('php://stdout', 'w'), 'application/x-protobuf')),
-            default => throw new \InvalidArgumentException("Unsupported exporter type: {$exporterType}"),
+            default => throw new \InvalidArgumentException('Unsupported exporter type: ' . $exporterType),
         };
     }
 
@@ -87,15 +89,15 @@ final class Observability
         $timeout = config('zeroboiler.observability.exporter.otlp.timeout', 10);
 
         // Use modern transport factories instead of deprecated OtlpUtil
-        if (str_starts_with($protocol, 'grpc')) {
-            $transport = (new OtlpGrpcTransportFactory())
+        if (str_starts_with((string) $protocol, 'grpc')) {
+            $transport = new OtlpGrpcTransportFactory()
                 ->withEndpoint($endpoint)
                 ->withHeaders($headers)
                 ->withTimeout($timeout)
                 ->create();
         } else {
             // Default: http/protobuf or http/json
-            $transport = (new OtlpHttpTransportFactory())
+            $transport = new OtlpHttpTransportFactory()
                 ->withEndpoint($endpoint)
                 ->withHeaders($headers)
                 ->withTimeout($timeout)
@@ -125,7 +127,7 @@ final class Observability
             $this->initialize();
         }
 
-        $this->logManager->listen(function ($level, $message, $context) {
+        $this->logManager->listen(function ($level, $message, $context): void {
             $span = Span::current();
 
             if ($span->isRecording()) {
@@ -151,12 +153,12 @@ final class Observability
         if ($endpoint) {
             $checks['otel_endpoint'] = [
                 'status' => 'pass',
-                'output' => "OTLP endpoint configured: {$endpoint}",
+                'output' => 'OTLP endpoint configured: ' . $endpoint,
             ];
         }
 
         return new HealthResult(
-            status: collect($checks)->every(fn ($check) => $check['status'] === 'pass') ? 'pass' : 'degraded',
+            status: collect($checks)->every(fn ($check): bool => $check['status'] === 'pass') ? 'pass' : 'degraded',
             checks: $checks,
         );
     }

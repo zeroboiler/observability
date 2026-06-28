@@ -10,7 +10,7 @@ use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
 use ZeroBoiler\Observability\Tests\Pest;
 
-beforeEach(function () {
+beforeEach(function (): void {
     // Set the config that the instrumentations check via isEnabled()
     config()->set('zeroboiler.observability.auto_instrumentation.enabled', true);
     config()->set('zeroboiler.observability.auto_instrumentation.http.enabled', true);
@@ -21,48 +21,48 @@ beforeEach(function () {
     config()->set('zeroboiler.observability.auto_instrumentation.cache.enabled', true);
 });
 
-afterEach(function () {
+afterEach(function (): void {
     // Reset to default test config
     config()->set('zeroboiler.observability.auto_instrumentation.enabled', false);
 });
 
-test('http instrumentation is enabled by default', function () {
+test('http instrumentation is enabled by default', function (): void {
     $instrumentation = app(HttpInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
 });
 
-test('database instrumentation is enabled by default', function () {
+test('database instrumentation is enabled by default', function (): void {
     $instrumentation = app(DatabaseInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
 });
 
-test('queue instrumentation is enabled by default', function () {
+test('queue instrumentation is enabled by default', function (): void {
     $instrumentation = app(QueueInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
 });
 
-test('redis instrumentation is enabled by default', function () {
+test('redis instrumentation is enabled by default', function (): void {
     $instrumentation = app(RedisInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
 });
 
-test('mail instrumentation is enabled by default', function () {
+test('mail instrumentation is enabled by default', function (): void {
     $instrumentation = app(MailInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
 });
 
-test('cache instrumentation is enabled by default', function () {
+test('cache instrumentation is enabled by default', function (): void {
     $instrumentation = app(CacheInstrumentation::class);
 
     expect($instrumentation->isEnabled())->toBeTrue();
 });
 
-test('instrumentation respects global disable', function () {
+test('instrumentation respects global disable', function (): void {
     config()->set('zeroboiler.observability.auto_instrumentation.enabled', false);
 
     $instrumentation = app(HttpInstrumentation::class);
@@ -70,7 +70,7 @@ test('instrumentation respects global disable', function () {
     expect($instrumentation->isEnabled())->toBeFalse();
 });
 
-test('individual instrumentation can be disabled', function () {
+test('individual instrumentation can be disabled', function (): void {
     config()->set('zeroboiler.observability.auto_instrumentation.http.enabled', false);
 
     $instrumentation = app(HttpInstrumentation::class);

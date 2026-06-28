@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
+use ZeroBoiler\Observability\OtelTracer;
 use ZeroBoiler\Observability\Observability;
 use ZeroBoiler\Observability\Tests\Pest;
 
-test('observability initializes successfully', function () {
+test('observability initializes successfully', function (): void {
     $observability = app(Observability::class);
 
     $observability->initialize();
@@ -13,7 +14,7 @@ test('observability initializes successfully', function () {
     expect($observability)->toBeInstanceOf(Observability::class);
 });
 
-test('observability health check passes', function () {
+test('observability health check passes', function (): void {
     $observability = app(Observability::class);
     $observability->initialize();
 
@@ -23,11 +24,11 @@ test('observability health check passes', function () {
     expect($health->status)->toBe('pass');
 });
 
-test('observability returns tracer', function () {
+test('observability returns tracer', function (): void {
     $observability = app(Observability::class);
     $observability->initialize();
 
     $tracer = $observability->getTracer();
 
-    expect($tracer)->toBeInstanceOf(\ZeroBoiler\Observability\OtelTracer::class);
+    expect($tracer)->toBeInstanceOf(OtelTracer::class);
 });

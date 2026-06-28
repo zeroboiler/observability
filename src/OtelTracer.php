@@ -9,14 +9,10 @@ use OpenTelemetry\API\Trace\SpanBuilderInterface;
 use OpenTelemetry\API\Trace\Span as OtelSpan;
 use OpenTelemetry\Context\Context;
 
-final class OtelTracer implements TracerInterface
+final readonly class OtelTracer implements TracerInterface
 {
-    private \OpenTelemetry\API\Trace\TracerInterface $innerTracer;
-
-    public function __construct(
-        \OpenTelemetry\API\Trace\TracerInterface $innerTracer,
-    ) {
-        $this->innerTracer = $innerTracer;
+    public function __construct(private TracerInterface $innerTracer)
+    {
     }
 
     public function spanBuilder(string $spanName): SpanBuilderInterface

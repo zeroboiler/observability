@@ -21,7 +21,7 @@ final class QueueInstrumentation extends BaseInstrumentation
     #[\Override]
     public function register(): void
     {
-        Queue::before(function ($event) {
+        Queue::before(function ($event): void {
             $jobId = $event->job->getJobId();
             $span = Span::start('queue.process', 'consumer', [
                 'messaging.system' => config('queue.default', 'redis'),
@@ -31,16 +31,16 @@ final class QueueInstrumentation extends BaseInstrumentation
             ]);
 
             $this->activeSpans[$jobId] = $span;
-            app()->instance("observability.queue_span.{$jobId}", $span);
+            app()->instance('observability.queue_span.' . $jobId, $span);
         });
 
-        Queue::after(function ($event) {
+        Queue::after(function ($event): void {
             $this->cleanupSpan($event->job->getJobId(), [
                 'messaging.attempts' => $event->job->attempts(),
             ]);
         });
 
-        Queue::failing(function ($event) {
+        Queue::failing(function ($event): void {
             $this->cleanupSpan($event->job->getJobId(), [
                 'messaging.attempts' => $event->job->attempts(),
             ], $event->exception);
@@ -48,13 +48,14 @@ final class QueueInstrumentation extends BaseInstrumentation
 
         // Safety net: clean up any leaked spans on application termination
         // when a job throws an unhandled exception that bypasses after/failing.
-        app()->terminating(function () {
+        app()->terminating(function (): void {
             foreach ($this->activeSpans as $jobId => $span) {
                 if ($span->isRecording()) {
                     $span->end();
                 }
+
                 unset($this->activeSpans[$jobId]);
-                app()->forgetInstance("observability.queue_span.{$jobId}");
+                app()->forgetInstance('observability.queue_span.' . $jobId);
             }
         });
     }
@@ -73,7 +74,7 @@ final class QueueInstrumentation extends BaseInstrumentation
                 $span->setAttribute($key, $value);
             }
 
-            if ($exception !== null) {
+            if ($exception instanceof \Throwable) {
                 $span->recordException($exception);
             }
 
@@ -81,6 +82,6 @@ final class QueueInstrumentation extends BaseInstrumentation
         }
 
         unset($this->activeSpans[$jobId]);
-        app()->forgetInstance("observability.queue_span.{$jobId}");
+        app()->forgetInstance('observability.queue_span.' . $jobId);
     }
 }

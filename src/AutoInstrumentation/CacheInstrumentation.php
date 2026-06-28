@@ -22,7 +22,7 @@ final class CacheInstrumentation extends BaseInstrumentation
     #[\Override]
     public function register(): void
     {
-        Event::listen(CacheHit::class, function (CacheHit $event) {
+        Event::listen(CacheHit::class, function (CacheHit $event): void {
             Span::start('cache.get', 'client', [
                 'cache.system' => $event->storeName ?? config('cache.default'),
                 'cache.key' => $event->key,
@@ -31,7 +31,7 @@ final class CacheInstrumentation extends BaseInstrumentation
             ])->end();
         });
 
-        Event::listen(CacheMissed::class, function (CacheMissed $event) {
+        Event::listen(CacheMissed::class, function (CacheMissed $event): void {
             Span::start('cache.get', 'client', [
                 'cache.system' => $event->storeName ?? config('cache.default'),
                 'cache.key' => $event->key,
@@ -40,7 +40,7 @@ final class CacheInstrumentation extends BaseInstrumentation
             ])->end();
         });
 
-        Event::listen(KeyWritten::class, function (KeyWritten $event) {
+        Event::listen(KeyWritten::class, function (KeyWritten $event): void {
             Span::start('cache.set', 'client', [
                 'cache.system' => $event->storeName ?? config('cache.default'),
                 'cache.key' => $event->key,
@@ -48,7 +48,7 @@ final class CacheInstrumentation extends BaseInstrumentation
             ])->end();
         });
 
-        Event::listen(KeyForgotten::class, function (KeyForgotten $event) {
+        Event::listen(KeyForgotten::class, function (KeyForgotten $event): void {
             Span::start('cache.delete', 'client', [
                 'cache.system' => $event->storeName ?? config('cache.default'),
                 'cache.key' => $event->key,

@@ -20,9 +20,11 @@ use ZeroBoiler\Observability\MetricsRegistry;
 final class ObservabilityFlushCommand extends Command
 {
     /** @var string */
+    #[\Override]
     protected $signature = 'zeroboiler:observability:flush';
 
     /** @var string */
+    #[\Override]
     protected $description = 'Flush all observability state (metrics, spans, traces) from the current process';
 
     public function handle(MetricsRegistry $metrics): int

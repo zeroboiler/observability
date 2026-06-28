@@ -2,32 +2,33 @@
 
 declare(strict_types=1);
 
+use ZeroBoiler\Observability\Observability;
 use Illuminate\Support\Facades\Artisan;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityHealthCommand;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityTraceTestCommand;
 
-test('health command runs successfully', function () {
+test('health command runs successfully', function (): void {
     $exitCode = Artisan::call(ObservabilityHealthCommand::class, ['type' => 'liveness']);
     expect($exitCode)->toBe(0);
 });
 
-test('health command with readiness', function () {
+test('health command with readiness', function (): void {
     // Readiness checks db, cache, queue which may not all be available in test env.
     // We just verify the command runs without fatal errors.
     $exitCode = Artisan::call(ObservabilityHealthCommand::class, ['type' => 'readiness']);
     expect($exitCode)->toBeIn([0, 1]);
 });
 
-test('health command with startup', function () {
+test('health command with startup', function (): void {
     // Startup runs readiness checks (db, cache, queue) which may fail in test env.
     // We just verify the command runs without fatal errors.
     $exitCode = Artisan::call(ObservabilityHealthCommand::class, ['type' => 'startup']);
     expect($exitCode)->toBeIn([0, 1]);
 });
 
-test('trace test command runs successfully', function () {
+test('trace test command runs successfully', function (): void {
     // Set up a clean observability instance for this test
-    $observability = app(\ZeroBoiler\Observability\Observability::class);
+    $observability = app(Observability::class);
     $observability->initialize();
 
     $exitCode = Artisan::call(ObservabilityTraceTestCommand::class, ['operations' => 3]);

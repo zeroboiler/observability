@@ -6,15 +6,8 @@ namespace ZeroBoiler\Observability;
 
 readonly class HealthResult
 {
-    public string $status;
-    public array $checks;
-
-    public function __construct(
-        string $status,
-        array $checks = [],
-    ) {
-        $this->status = $status;
-        $this->checks = $checks;
+    public function __construct(public string $status, public array $checks = [])
+    {
     }
 
     public function isHealthy(): bool

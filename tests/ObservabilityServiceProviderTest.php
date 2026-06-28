@@ -2,33 +2,36 @@
 
 declare(strict_types=1);
 
+use ZeroBoiler\Observability\Observability;
+use ZeroBoiler\Observability\HealthChecker;
+use ZeroBoiler\Observability\MetricsRegistry;
 use ZeroBoiler\Observability\ObservabilityServiceProvider;
 use ZeroBoiler\Observability\Tests\Pest;
 
-test('service provider registers observability', function () {
+test('service provider registers observability', function (): void {
     $app = app();
 
     $provider = new ObservabilityServiceProvider($app);
     $provider->register();
 
-    expect($app->has(\ZeroBoiler\Observability\Observability::class))->toBeTrue();
+    expect($app->has(Observability::class))->toBeTrue();
     expect($app->bound('observability'))->toBeTrue();
 });
 
-test('service provider registers health checker', function () {
+test('service provider registers health checker', function (): void {
     $app = app();
 
     $provider = new ObservabilityServiceProvider($app);
     $provider->register();
 
-    expect($app->has(\ZeroBoiler\Observability\HealthChecker::class))->toBeTrue();
+    expect($app->has(HealthChecker::class))->toBeTrue();
 });
 
-test('service provider registers metrics registry', function () {
+test('service provider registers metrics registry', function (): void {
     $app = app();
 
     $provider = new ObservabilityServiceProvider($app);
     $provider->register();
 
-    expect($app->has(\ZeroBoiler\Observability\MetricsRegistry::class))->toBeTrue();
+    expect($app->has(MetricsRegistry::class))->toBeTrue();
 });

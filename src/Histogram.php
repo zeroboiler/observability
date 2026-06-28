@@ -6,7 +6,7 @@ namespace ZeroBoiler\Observability;
 
 use OpenTelemetry\API\Metrics\HistogramInterface;
 
-final class Histogram
+final readonly class Histogram
 {
     public function __construct(
         private HistogramInterface $histogram,

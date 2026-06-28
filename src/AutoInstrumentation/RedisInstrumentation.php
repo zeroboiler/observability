@@ -20,7 +20,7 @@ final class RedisInstrumentation extends BaseInstrumentation
     {
         Redis::enableEvents();
 
-        Redis::listen(function ($event) {
+        Redis::listen(function ($event): void {
             Span::start('redis.command', 'client', [
                 'db.system' => 'redis',
                 'db.name' => $event->connection?->getName() ?? 'default',

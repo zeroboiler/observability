@@ -5,7 +5,7 @@ declare(strict_types=1);
 use ZeroBoiler\Observability\Span;
 use ZeroBoiler\Observability\Tests\Pest;
 
-test('span creates and ends', function () {
+test('span creates and ends', function (): void {
     $span = Span::start('test.span');
 
     expect($span->isRecording())->toBeTrue();
@@ -16,7 +16,7 @@ test('span creates and ends', function () {
     expect($span->isRecording())->toBeFalse();
 });
 
-test('span adds attributes', function () {
+test('span adds attributes', function (): void {
     $span = Span::start('test.attributes')
         ->setAttribute('key1', 'value1')
         ->setAttribute('key2', 123)
@@ -27,7 +27,7 @@ test('span adds attributes', function () {
     $span->end();
 });
 
-test('span adds events', function () {
+test('span adds events', function (): void {
     $span = Span::start('test.events')
         ->addEvent('event1', ['data' => 'value'])
         ->addEvent('event2');
@@ -37,7 +37,7 @@ test('span adds events', function () {
     $span->end();
 });
 
-test('span records exception', function () {
+test('span records exception', function (): void {
     $span = Span::start('test.exception');
 
     $exception = new \RuntimeException('Test exception');
@@ -49,8 +49,8 @@ test('span records exception', function () {
     $span->end();
 });
 
-test('span trace method catches exceptions', function () {
-    $result = Span::trace('test.trace', function (Span $span) {
+test('span trace method catches exceptions', function (): void {
+    $result = Span::trace('test.trace', function (Span $span): void {
         $span->setAttribute('test', 'value');
 
         throw new \RuntimeException('Test exception');
@@ -59,8 +59,8 @@ test('span trace method catches exceptions', function () {
     expect($result)->toBeNull();
 })->throws(\RuntimeException::class, 'Test exception');
 
-test('span trace method returns result', function () {
-    $result = Span::trace('test.trace', function (Span $span) {
+test('span trace method returns result', function (): void {
+    $result = Span::trace('test.trace', function (Span $span): string {
         $span->setAttribute('test', 'value');
 
         return 'success';
@@ -69,7 +69,7 @@ test('span trace method returns result', function () {
     expect($result)->toBe('success');
 });
 
-test('span returns trace id', function () {
+test('span returns trace id', function (): void {
     $span = Span::start('test.trace_id');
 
     $traceId = $span->getTraceId();
@@ -80,7 +80,7 @@ test('span returns trace id', function () {
     $span->end();
 });
 
-test('span returns span id', function () {
+test('span returns span id', function (): void {
     $span = Span::start('test.span_id');
 
     $spanId = $span->getSpanId();

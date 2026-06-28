@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\Tests;
 
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Config\Repository;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
@@ -73,7 +75,7 @@ trait CreatesApplication
         $app->singleton(ConsoleKernelContract::class, ConsoleKernel::class);
 
         // Bind exception handler for console commands
-        $app->singleton(\Illuminate\Contracts\Debug\ExceptionHandler::class, \Illuminate\Foundation\Exceptions\Handler::class);
+        $app->singleton(ExceptionHandler::class, Handler::class);
 
         // Set facade application before boot
         Facade::setFacadeApplication($app);

@@ -19,6 +19,7 @@ use ZeroBoiler\Observability\Console\Commands\ObservabilityFlushCommand;
 
 final class ObservabilityServiceProvider extends ServiceProvider
 {
+    #[\Override]
     public function register(): void
     {
         $this->mergeConfigFrom(
@@ -58,7 +59,7 @@ final class ObservabilityServiceProvider extends ServiceProvider
 
     private function registerFacades(): void
     {
-        $this->app->singleton('observability.span', fn () => Span::current());
+        $this->app->singleton('observability.span', fn (): Span => Span::current());
     }
 
     private function registerAutoInstrumentation(): void

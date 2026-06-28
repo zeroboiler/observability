@@ -11,13 +11,10 @@ use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\Context\ContextInterface;
 use Closure;
 
-final class Span
+final readonly class Span
 {
-    private OtelSpanInterface $innerSpan;
-
-    private function __construct(OtelSpanInterface $span)
+    private function __construct(private OtelSpanInterface $innerSpan)
     {
-        $this->innerSpan = $span;
     }
 
     public static function current(): self
@@ -52,6 +49,7 @@ final class Span
             if (is_array($value)) {
                 $value = json_encode($value);
             }
+
             $builder->setAttribute($key, $value);
         }
 
@@ -68,11 +66,11 @@ final class Span
             $span->setStatus(StatusCode::STATUS_OK);
 
             return $result;
-        } catch (\Throwable $e) {
-            $span->recordException($e);
-            $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());
+        } catch (\Throwable $throwable) {
+            $span->recordException($throwable);
+            $span->setStatus(StatusCode::STATUS_ERROR, $throwable->getMessage());
 
-            throw $e;
+            throw $throwable;
         } finally {
             $span->end();
         }
@@ -151,12 +149,12 @@ final class Span
         return $this->innerSpan->getContext()->getSpanId();
     }
 
-    public static function traceId(): ?string
+    public static function traceId(): string
     {
         return self::current()->getTraceId();
     }
 
-    public static function spanId(): ?string
+    public static function spanId(): string
     {
         return self::current()->getSpanId();
     }

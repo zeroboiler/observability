@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability;
 
+use OpenTelemetry\API\Metrics\MeterInterface;
 use OpenTelemetry\SDK\Metrics\MeterProvider;
 use OpenTelemetry\SDK\Metrics\MeterProviderFactory;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
@@ -11,11 +12,14 @@ use OpenTelemetry\SDK\Resource\ResourceInfo;
 
 final class MetricsRegistry
 {
-    private MeterProvider $meterProvider;
-    private \OpenTelemetry\API\Metrics\MeterInterface $meter;
+    private readonly MeterProvider $meterProvider;
+
+    private readonly MeterInterface $meter;
 
     private array $counters = [];
+
     private array $gauges = [];
+
     private array $histograms = [];
 
     public function __construct()

@@ -24,7 +24,7 @@ final class DatabaseInstrumentation extends BaseInstrumentation
     {
         $this->slowQueryThreshold = (float) config('zeroboiler.observability.auto_instrumentation.database.slow_query_threshold', 1000.0);
 
-        DB::listen(function ($query) {
+        DB::listen(function ($query): void {
             // Use Laravel's built-in query duration (in milliseconds)
             $durationMs = (float) ($query->time ?? 0.0);
 

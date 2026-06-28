@@ -12,8 +12,8 @@ final class Gauge
     private array $currentValues = [];
 
     public function __construct(
-        private UpDownCounterInterface $gauge,
-        private array $attributes = [],
+        private readonly UpDownCounterInterface $gauge,
+        private readonly array $attributes = [],
     ) {}
 
     public function increment(int $amount = 1, array $attributes = []): void

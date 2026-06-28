@@ -20,7 +20,7 @@ final class MailInstrumentation extends BaseInstrumentation
     #[\Override]
     public function register(): void
     {
-        Event::listen(MessageSending::class, function (MessageSending $event) {
+        Event::listen(MessageSending::class, function (MessageSending $event): void {
             $message = $event->message;
 
             // Use message ID as key to support concurrent sends
@@ -35,18 +35,18 @@ final class MailInstrumentation extends BaseInstrumentation
                 'email.subject' => $message->getSubject(),
             ]);
 
-            app()->instance("observability.mail_span.{$messageId}", $span);
+            app()->instance('observability.mail_span.' . $messageId, $span);
         });
 
-        Event::listen(MessageSent::class, function (MessageSent $event) {
+        Event::listen(MessageSent::class, function (MessageSent $event): void {
             $message = $event->message;
             $messageId = $message->getId() ?? spl_object_hash($message);
 
-            $span = app("observability.mail_span.{$messageId}", null);
+            $span = app('observability.mail_span.' . $messageId, null);
 
             if ($span instanceof Span) {
                 $span->end();
-                app()->forgetInstance("observability.mail_span.{$messageId}");
+                app()->forgetInstance('observability.mail_span.' . $messageId);
             }
         });
     }
