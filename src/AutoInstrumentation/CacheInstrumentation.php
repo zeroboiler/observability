@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\AutoInstrumentation;
 
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Cache\Events\CacheHit;
+use Illuminate\Cache\Events\CacheMissed;
+use Illuminate\Cache\Events\KeyForgotten;
+use Illuminate\Cache\Events\KeyWritten;
+use Illuminate\Support\Facades\Event;
 use ZeroBoiler\Observability\Span;
 
 final class CacheInstrumentation extends BaseInstrumentation
@@ -18,37 +22,36 @@ final class CacheInstrumentation extends BaseInstrumentation
     #[\Override]
     public function register(): void
     {
-        Cache::beforeCommitting(function ($key, $value) {
-            Span::start('cache.set', 'client', [
-                'cache.system' => config('cache.default'),
-                'cache.key' => $key,
-                'cache.operation' => 'set',
-                'cache.hit' => null,
-            ])->end();
-        });
-
-        Cache::hit(function ($key) {
+        Event::listen(CacheHit::class, function (CacheHit $event) {
             Span::start('cache.get', 'client', [
-                'cache.system' => config('cache.default'),
-                'cache.key' => $key,
+                'cache.system' => $event->storeName ?? config('cache.default'),
+                'cache.key' => $event->key,
                 'cache.operation' => 'get',
                 'cache.hit' => true,
             ])->end();
         });
 
-        Cache::missed(function ($key) {
+        Event::listen(CacheMissed::class, function (CacheMissed $event) {
             Span::start('cache.get', 'client', [
-                'cache.system' => config('cache.default'),
-                'cache.key' => $key,
+                'cache.system' => $event->storeName ?? config('cache.default'),
+                'cache.key' => $event->key,
                 'cache.operation' => 'get',
                 'cache.hit' => false,
             ])->end();
         });
 
-        Cache::forget(function ($key) {
+        Event::listen(KeyWritten::class, function (KeyWritten $event) {
+            Span::start('cache.set', 'client', [
+                'cache.system' => $event->storeName ?? config('cache.default'),
+                'cache.key' => $event->key,
+                'cache.operation' => 'set',
+            ])->end();
+        });
+
+        Event::listen(KeyForgotten::class, function (KeyForgotten $event) {
             Span::start('cache.delete', 'client', [
-                'cache.system' => config('cache.default'),
-                'cache.key' => $key,
+                'cache.system' => $event->storeName ?? config('cache.default'),
+                'cache.key' => $event->key,
                 'cache.operation' => 'delete',
             ])->end();
         });

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\AutoInstrumentation;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
+use Illuminate\Support\Facades\Event;
 use ZeroBoiler\Observability\Span;
 
 final class MailInstrumentation extends BaseInstrumentation
@@ -23,6 +23,9 @@ final class MailInstrumentation extends BaseInstrumentation
         Event::listen(MessageSending::class, function (MessageSending $event) {
             $message = $event->message;
 
+            // Use message ID as key to support concurrent sends
+            $messageId = $message->getId() ?? spl_object_hash($message);
+
             $span = Span::start('mail.send', 'producer', [
                 'messaging.system' => 'email',
                 'messaging.operation' => 'send',
@@ -32,14 +35,18 @@ final class MailInstrumentation extends BaseInstrumentation
                 'email.subject' => $message->getSubject(),
             ]);
 
-            app()->instance('observability.current_mail_span', $span);
+            app()->instance("observability.mail_span.{$messageId}", $span);
         });
 
         Event::listen(MessageSent::class, function (MessageSent $event) {
-            $span = app('observability.current_mail_span');
+            $message = $event->message;
+            $messageId = $message->getId() ?? spl_object_hash($message);
 
-            if ($span) {
+            $span = app("observability.mail_span.{$messageId}", null);
+
+            if ($span instanceof Span) {
                 $span->end();
+                app()->forgetInstance("observability.mail_span.{$messageId}");
             }
         });
     }
