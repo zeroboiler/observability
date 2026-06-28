@@ -20,30 +20,23 @@
         }
     ],
     "require": {
-        "php": "^8.5",
-        "illuminate/support": "^13.0",
-        "illuminate/contracts": "^13.0",
-        "illuminate/http": "^13.0",
-        "illuminate/database": "^13.0",
-        "illuminate/queue": "^13.0",
-        "illuminate/redis": "^13.0",
-        "illuminate/mail": "^13.0",
-        "illuminate/cache": "^13.0",
-        "open-telemetry/sdk": "^1.0",
-        "open-telemetry/api": "^1.0",
-        "open-telemetry/exporter-otlp": "^1.0",
-        "open-telemetry/exporter-zipkin": "^1.0",
-        "open-telemetry/exporter-jaeger": "^1.0",
-        "open-telemetry/instrumentation": "^1.0"
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/queue": "^11.0|^12.0|^13.0",
+        "illuminate/redis": "^11.0|^12.0|^13.0",
+        "illuminate/mail": "^11.0|^12.0|^13.0",
+        "illuminate/cache": "^11.0|^12.0|^13.0"
     },
     "require-dev": {
         "laravel/pint": "^1.18",
-        "larastan/larastan": "^3.0",
         "phpstan/phpstan": "^2.0",
-        "phpunit/phpunit": "^12.0",
+        "phpunit/phpunit": "^11.5",
         "pestphp/pest": "^3.0",
-        "pestphp/pest-plugin-laravel": "^3.0",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "fakerphp/faker": "^1.24"
     },
     "autoload": {
         "psr-4": {
@@ -76,6 +69,6 @@
         "analyse": "phpstan analyse",
         "rector": "rector process"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
