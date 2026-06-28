@@ -20,15 +20,16 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "illuminate/support": "^11.0|^12.0|^13.0",
-        "illuminate/contracts": "^11.0|^12.0|^13.0",
-        "illuminate/http": "^11.0|^12.0|^13.0",
-        "illuminate/database": "^11.0|^12.0|^13.0",
-        "illuminate/queue": "^11.0|^12.0|^13.0",
-        "illuminate/redis": "^11.0|^12.0|^13.0",
-        "illuminate/mail": "^11.0|^12.0|^13.0",
-        "illuminate/cache": "^11.0|^12.0|^13.0"
+        "php": "^8.5",
+        "illuminate/support": "^13.0",
+        "illuminate/contracts": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/queue": "^13.0",
+        "illuminate/redis": "^13.0",
+        "illuminate/mail": "^13.0",
+        "illuminate/cache": "^13.0",
+        "open-telemetry/sdk": "^1.0"
     },
     "require-dev": {
         "laravel/pint": "^1.18",
