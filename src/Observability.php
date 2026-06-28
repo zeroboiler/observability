@@ -6,14 +6,15 @@ namespace ZeroBoiler\Observability;
 
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Log;
-use OpenTelemetry\API\Trace\SpanInterface;
+use OpenTelemetry\API	race\SpanInterface;
 use OpenTelemetry\API\Trace\SpanBuilderInterface;
 use OpenTelemetry\API\Trace\SpanContextInterface;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Trace\TracerProviderInterface;
-use OpenTelemetry\Contrib\Otlp\OtlpExporter;
-use OpenTelemetry\Contrib\Otlp\OtlpUtil;
+use OpenTelemetry\Contrib\Otlp\SpanExporter;
+use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
+use OpenTelemetry\Contrib\Otlp\OtlpGrpcTransportFactory;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
 use OpenTelemetry\SDK\Trace\Exporter\ConsoleSpanExporter;
@@ -77,17 +78,35 @@ final class Observability
         };
     }
 
-    private function createOtlpExporter(): OtlpExporter
+    private function createOtlpExporter(): SpanExporter
     {
         $endpoint = config('zeroboiler.observability.exporter.otlp.endpoint', 'http://localhost:4318/v1/traces');
         $protocol = config('zeroboiler.observability.exporter.otlp.protocol', 'http/protobuf');
+        $headers = config('zeroboiler.observability.exporter.otlp.headers', []);
+        $timeout = config('zeroboiler.observability.exporter.otlp.timeout', 10);
 
-        return OtlpUtil::createExporter(
-            $endpoint,
-            $protocol,
-            config('zeroboiler.observability.exporter.otlp.headers', []),
-            config('zeroboiler.observability.exporter.otlp.timeout', 10),
-        );
+        // Use modern transport factories instead of deprecated OtlpUtil
+        if (str_starts_with($protocol, 'grpc')) {
+            $transport = (new OtlpGrpcTransportFactory())
+                ->withEndpoint($endpoint)
+                ->withHeaders($headers)
+                ->withTimeout($timeout)
+                ->create();
+        } else {
+            // Default: http/protobuf or http/json
+            $transport = (new OtlpHttpTransportFactory())
+                ->withEndpoint($endpoint)
+                ->withHeaders($headers)
+                ->withTimeout($timeout)
+                ->withContentType(
+                    $protocol === 'http/json'
+                        ? 'application/json'
+                        : 'application/x-protobuf'
+                )
+                ->create();
+        }
+
+        return new SpanExporter($transport);
     }
 
     public function getTracer(): OtelTracer

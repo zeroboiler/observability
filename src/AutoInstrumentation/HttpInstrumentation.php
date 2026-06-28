@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\AutoInstrumentation;
 
-use Illuminate\Support\Facades\Event;
+use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
+use OpenTelemetry\API\Trace\StatusCode;
 use ZeroBoiler\Observability\Span;
 
 final class HttpInstrumentation extends BaseInstrumentation
@@ -19,22 +22,46 @@ final class HttpInstrumentation extends BaseInstrumentation
     #[\Override]
     public function register(): void
     {
-        Event::listen(\Illuminate\Foundation\Http\Events\RequestHandled::class, function ($event) {
-            $request = $event->request;
+        // Register a middleware that wraps the entire request lifecycle
+        // in a server span, so child spans (DB, cache, etc.) are captured.
+        $this->registerMiddleware();
+
+        // Keep listening to RequestHandled for response attributes enrichment
+        // (status code, content length) — but the span is started in middleware.
+        Event::listen(\Illuminate\Foundation\Http\Events\RequestHandled::class, function ($event): void {
+            $span = Span::current();
+
+            if (! $span->isRecording()) {
+                return;
+            }
+
             $response = $event->response;
 
-            Span::start('http.request', 'server', [
-                'http.method' => $request->method(),
-                'http.url' => $request->fullUrl(),
-                'http.scheme' => $request->getScheme(),
-                'http.host' => $request->getHost(),
-                'http.target' => $request->getRequestUri(),
-                'http.user_agent' => $request->userAgent(),
-                'http.client_ip' => $request->ip(),
-                'http.route' => $request->route()?->getName() ?? $request->path(),
-                'http.status_code' => $response->getStatusCode(),
-                'http.response_content_length' => strlen($response->getContent()),
-            ])->end();
+            $span->setAttribute('http.status_code', $response->getStatusCode());
+            $span->setAttribute('http.response_content_length', strlen($response->getContent()));
+
+            if ($response->getStatusCode() >= 500) {
+                $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
+            } elseif ($response->getStatusCode() >= 400) {
+                $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
+            } else {
+                $span->setStatus(StatusCode::STATUS_OK);
+            }
         });
+    }
+
+    /**
+     * Register the tracing middleware as a global middleware.
+     * Only register when running in an HTTP context, not console.
+     */
+    private function registerMiddleware(): void
+    {
+        if ($this->app->runningInConsole()) {
+            return;
+        }
+
+        $kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class);
+
+        $kernel->prependMiddleware(HttpTracingMiddleware::class);
     }
 }
