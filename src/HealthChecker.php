@@ -20,11 +20,12 @@ final class HealthChecker
         $otelHealth = $observability->health();
 
         $checks['observability'] = [
-            'status' => $otelHealth->isHealthy() ? 'pass' : 'fail',
+            'status' => $otelHealth->isHealthy() ? 'pass' : 'warn',
             'output' => $otelHealth->isHealthy() ? 'Observability operational' : 'Observability degraded',
         ];
 
-        $status = collect($checks)->every(fn ($check) => $check['status'] === 'pass') ? 'pass' : 'fail';
+        // Liveness only fails when the app itself is broken, not when observability is degraded
+        $status = $checks['app']['status'] === 'pass' ? 'pass' : 'fail';
 
         return new HealthResult($status, $checks);
     }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace ZeroBoiler\Observability\AutoInstrumentation;
 
 use Illuminate\Support\Facades\DB;
+use OpenTelemetry\API\Trace\Span as OtelSpan;
+use OpenTelemetry\Context\Context;
 use ZeroBoiler\Observability\Span;
 
 final class DatabaseInstrumentation extends BaseInstrumentation
@@ -34,19 +36,26 @@ final class DatabaseInstrumentation extends BaseInstrumentation
                 'db.query.duration_ms' => round($durationMs, 2),
             ]);
 
-            if (isset($query->affected)) {
-                $span->setAttribute('db.rows_affected', $query->affected);
-            }
+            // Activate the span so child spans have the correct parent context
+            $scope = Context::storage()->attach(OtelSpan::getCurrent()->storeInContext(Context::getCurrent()));
 
-            if ($durationMs > $this->slowQueryThreshold) {
-                $span->addEvent('slow_query', [
-                    'threshold_ms' => $this->slowQueryThreshold,
-                    'actual_ms' => round($durationMs, 2),
-                ]);
-            }
+            try {
+                if (isset($query->affected)) {
+                    $span->setAttribute('db.rows_affected', $query->affected);
+                }
 
-            if (! empty($query->bindings)) {
-                $span->setAttribute('db.bindings', $query->bindings);
+                if ($durationMs > $this->slowQueryThreshold) {
+                    $span->addEvent('slow_query', [
+                        'threshold_ms' => $this->slowQueryThreshold,
+                        'actual_ms' => round($durationMs, 2),
+                    ]);
+                }
+
+                if (! empty($query->bindings)) {
+                    $span->setAttribute('db.bindings', $query->bindings);
+                }
+            } finally {
+                $scope->detach();
             }
 
             $span->end();

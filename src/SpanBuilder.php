@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace ZeroBoiler\Observability;
 
 use OpenTelemetry\API\Trace\SpanBuilderInterface as OtelSpanBuilderInterface;
+use OpenTelemetry\API\Trace\SpanContextInterface;
+use OpenTelemetry\Context\ContextInterface;
 
 final class SpanBuilder
 {
@@ -29,9 +31,9 @@ final class SpanBuilder
         return $this;
     }
 
-    public function addLink(ContextInterface $context, array $attributes = []): self
+    public function addLink(SpanContextInterface $spanContext, array $attributes = []): self
     {
-        $this->innerBuilder->addLink($context, $attributes);
+        $this->innerBuilder->addLink($spanContext, $attributes);
 
         return $this;
     }

@@ -6,6 +6,8 @@ namespace ZeroBoiler\Observability;
 
 use OpenTelemetry\API\Trace\TracerInterface;
 use OpenTelemetry\API\Trace\SpanBuilderInterface;
+use OpenTelemetry\API\Trace\Span as OtelSpan;
+use OpenTelemetry\Context\Context;
 
 final class OtelTracer implements TracerInterface
 {
@@ -25,7 +27,7 @@ final class OtelTracer implements TracerInterface
 
     public function getCurrentSpan(): Span
     {
-        return new Span($this->innerTracer->getCurrentSpan());
+        return new Span(OtelSpan::fromContext(Context::getCurrent()));
     }
 
     public function traceId(): ?string
