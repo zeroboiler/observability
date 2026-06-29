@@ -11,6 +11,15 @@ use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\Context\Context;
 
+/**
+ * Span wraps OpenTelemetry's SpanInterface.
+ *
+ * The class is readonly to prevent property reassignment, but the underlying
+ * OTEL span (innerSpan) is mutable by design — attributes, events, status,
+ * and name are set via method calls. This matches the OTEL specification
+ * where spans are mutable during their recording phase and become immutable
+ * after end() is called.
+ */
 final readonly class Span
 {
     private function __construct(private OtelSpanInterface $innerSpan) {}

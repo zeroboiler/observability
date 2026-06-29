@@ -11,6 +11,13 @@ use ZeroBoiler\Observability\Span;
 
 final class DatabaseInstrumentation extends BaseInstrumentation
 {
+    /**
+     * Note: Laravel's DB::listen fires AFTER query execution completes.
+     * This means spans are created retrospectively with the known duration,
+     * not wrapped around the actual query execution. This is a limitation
+     of Laravel's query event system. The duration is still accurately
+     captured from $query->time.
+     */
     private ?float $slowQueryThreshold = null;
 
     #[\Override]
