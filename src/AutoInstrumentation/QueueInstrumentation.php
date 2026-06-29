@@ -13,12 +13,6 @@ final class QueueInstrumentation extends BaseInstrumentation
     private array $activeSpans = [];
 
     #[\Override]
-    protected function getKey(): string
-    {
-        return 'queue';
-    }
-
-    #[\Override]
     public function register(): void
     {
         Queue::before(function ($event): void {
@@ -31,7 +25,7 @@ final class QueueInstrumentation extends BaseInstrumentation
             ]);
 
             $this->activeSpans[$jobId] = $span;
-            app()->instance('observability.queue_span.' . $jobId, $span);
+            app()->instance('observability.queue_span.'.$jobId, $span);
         });
 
         Queue::after(function ($event): void {
@@ -55,15 +49,21 @@ final class QueueInstrumentation extends BaseInstrumentation
                 }
 
                 unset($this->activeSpans[$jobId]);
-                app()->forgetInstance('observability.queue_span.' . $jobId);
+                app()->forgetInstance('observability.queue_span.'.$jobId);
             }
         });
+    }
+
+    #[\Override]
+    protected function getKey(): string
+    {
+        return 'queue';
     }
 
     /**
      * Clean up a span by job ID, optionally recording an exception.
      *
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function cleanupSpan(string $jobId, array $attributes = [], ?\Throwable $exception = null): void
     {
@@ -82,6 +82,6 @@ final class QueueInstrumentation extends BaseInstrumentation
         }
 
         unset($this->activeSpans[$jobId]);
-        app()->forgetInstance('observability.queue_span.' . $jobId);
+        app()->forgetInstance('observability.queue_span.'.$jobId);
     }
 }

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\AutoInstrumentation;
 
-use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Contracts\Http\Kernel;
-use Closure;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
@@ -15,12 +14,6 @@ use ZeroBoiler\Observability\Span;
 
 final class HttpInstrumentation extends BaseInstrumentation
 {
-    #[\Override]
-    protected function getKey(): string
-    {
-        return 'http';
-    }
-
     #[\Override]
     public function register(): void
     {
@@ -43,13 +36,19 @@ final class HttpInstrumentation extends BaseInstrumentation
             $span->setAttribute('http.response_content_length', strlen((string) $response->getContent()));
 
             if ($response->getStatusCode() >= 500) {
-                $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
+                $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP '.$response->getStatusCode());
             } elseif ($response->getStatusCode() >= 400) {
-                $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
+                $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP '.$response->getStatusCode());
             } else {
                 $span->setStatus(StatusCode::STATUS_OK);
             }
         });
+    }
+
+    #[\Override]
+    protected function getKey(): string
+    {
+        return 'http';
     }
 
     /**

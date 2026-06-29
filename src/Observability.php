@@ -5,25 +5,17 @@ declare(strict_types=1);
 namespace ZeroBoiler\Observability;
 
 use Illuminate\Log\LogManager;
-use Illuminate\Support\Facades\Log;
-use OpenTelemetry\API\Trace\SpanBuilderInterface;
-use OpenTelemetry\API\Trace\SpanContextInterface;
-use OpenTelemetry\API\Trace\StatusCode;
-use OpenTelemetry\SDK\Common\Export\Stream\StreamTransport;
-use OpenTelemetry\SDK\Common\Attribute\Attributes;
-use OpenTelemetry\SDK\Common\Time\ClockFactory;
-use OpenTelemetry\SDK\Common\Time\ClockInterface;
-use OpenTelemetry\SDK\Resource\ResourceInfo;
-use OpenTelemetry\SDK\Trace\TracerProviderInterface;
-use OpenTelemetry\Contrib\Otlp\SpanExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
-use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
-use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
+use OpenTelemetry\Contrib\Otlp\SpanExporter;
+use OpenTelemetry\SDK\Common\Attribute\Attributes;
+use OpenTelemetry\SDK\Common\Export\Stream\StreamTransport;
+use OpenTelemetry\SDK\Common\Time\ClockFactory;
+use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Trace\SpanExporter\ConsoleSpanExporter;
+use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
+use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
-use OpenTelemetry\SDK\Common\Export\TransportFactoryInterface;
-
-use function OpenTelemetry\SDK\Util\shutdown;
+use OpenTelemetry\SDK\Trace\TracerProviderInterface;
 
 final class Observability
 {
@@ -73,38 +65,6 @@ final class Observability
         $this->initialized = true;
     }
 
-    private function createExporter(): object
-    {
-        $exporterType = config('zeroboiler.observability.exporter.type', 'otlp');
-
-        return match ($exporterType) {
-            'otlp' => $this->createOtlpExporter(),
-            'console' => new ConsoleSpanExporter(new StreamTransport(fopen('php://stdout', 'w'), 'application/x-protobuf')),
-            default => throw new \InvalidArgumentException('Unsupported exporter type: ' . $exporterType),
-        };
-    }
-
-    private function createOtlpExporter(): SpanExporter
-    {
-        $endpoint = config('zeroboiler.observability.exporter.otlp.endpoint', 'http://localhost:4318/v1/traces');
-        $protocol = config('zeroboiler.observability.exporter.otlp.protocol', 'http/protobuf');
-        $headers = config('zeroboiler.observability.exporter.otlp.headers', []);
-        if (!is_array($headers)) {
-            $headers = array_filter(array_map(trim(...), explode(',', (string) $headers)));
-        }
-
-        $timeout = config('zeroboiler.observability.exporter.otlp.timeout', 10);
-
-        $contentType = $protocol === 'http/json'
-            ? 'application/json'
-            : 'application/x-protobuf';
-
-        $transport = new OtlpHttpTransportFactory()
-            ->create($endpoint, $contentType, $headers, null, $timeout);
-
-        return new SpanExporter($transport);
-    }
-
     public function getTracer(): OtelTracer
     {
         if (! $this->initialized) {
@@ -143,10 +103,11 @@ final class Observability
         ];
 
         $endpoint = config('zeroboiler.observability.exporter.otlp.endpoint');
+
         if ($endpoint) {
             $checks['otel_endpoint'] = [
                 'status' => 'pass',
-                'output' => 'OTLP endpoint configured: ' . $endpoint,
+                'output' => 'OTLP endpoint configured: '.$endpoint,
             ];
         }
 
@@ -162,5 +123,38 @@ final class Observability
             $this->tracerProvider->shutdown();
             $this->initialized = false;
         }
+    }
+
+    private function createExporter(): object
+    {
+        $exporterType = config('zeroboiler.observability.exporter.type', 'otlp');
+
+        return match ($exporterType) {
+            'otlp' => $this->createOtlpExporter(),
+            'console' => new ConsoleSpanExporter(new StreamTransport(fopen('php://stdout', 'w'), 'application/x-protobuf')),
+            default => throw new \InvalidArgumentException('Unsupported exporter type: '.$exporterType),
+        };
+    }
+
+    private function createOtlpExporter(): SpanExporter
+    {
+        $endpoint = config('zeroboiler.observability.exporter.otlp.endpoint', 'http://localhost:4318/v1/traces');
+        $protocol = config('zeroboiler.observability.exporter.otlp.protocol', 'http/protobuf');
+        $headers = config('zeroboiler.observability.exporter.otlp.headers', []);
+
+        if (! is_array($headers)) {
+            $headers = array_filter(array_map(trim(...), explode(',', (string) $headers)));
+        }
+
+        $timeout = config('zeroboiler.observability.exporter.otlp.timeout', 10);
+
+        $contentType = $protocol === 'http/json'
+            ? 'application/json'
+            : 'application/x-protobuf';
+
+        $transport = new OtlpHttpTransportFactory()
+            ->create($endpoint, $contentType, $headers, null, $timeout);
+
+        return new SpanExporter($transport);
     }
 }

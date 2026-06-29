@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\Observability\OtelTracer;
 use ZeroBoiler\Observability\Observability;
-use ZeroBoiler\Observability\Tests\Pest;
+use ZeroBoiler\Observability\OtelTracer;
 
 test('observability initializes successfully', function (): void {
     $observability = app(Observability::class);

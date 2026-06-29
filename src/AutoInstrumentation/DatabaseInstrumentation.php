@@ -14,12 +14,6 @@ final class DatabaseInstrumentation extends BaseInstrumentation
     private ?float $slowQueryThreshold = null;
 
     #[\Override]
-    protected function getKey(): string
-    {
-        return 'database';
-    }
-
-    #[\Override]
     public function register(): void
     {
         $this->slowQueryThreshold = (float) config('zeroboiler.observability.auto_instrumentation.database.slow_query_threshold', 1000.0);
@@ -29,8 +23,8 @@ final class DatabaseInstrumentation extends BaseInstrumentation
             $durationMs = (float) ($query->time ?? 0.0);
 
             $span = Span::start('db.query', 'client', [
-                'db.system' => config('database.connections.' . $query->connectionName . '.driver', 'unknown'),
-                'db.name' => config('database.connections.' . $query->connectionName . '.database'),
+                'db.system' => config('database.connections.'.$query->connectionName.'.driver', 'unknown'),
+                'db.name' => config('database.connections.'.$query->connectionName.'.database'),
                 'db.statement' => $query->sql,
                 'db.connection' => $query->connectionName,
                 'db.query.duration_ms' => round($durationMs, 2),
@@ -60,5 +54,11 @@ final class DatabaseInstrumentation extends BaseInstrumentation
 
             $span->end();
         });
+    }
+
+    #[\Override]
+    protected function getKey(): string
+    {
+        return 'database';
     }
 }

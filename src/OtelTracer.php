@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability;
 
-use OpenTelemetry\API\Trace\TracerInterface;
-use OpenTelemetry\API\Trace\SpanBuilderInterface;
 use OpenTelemetry\API\Trace\Span as OtelSpan;
+use OpenTelemetry\API\Trace\SpanBuilderInterface;
+use OpenTelemetry\API\Trace\TracerInterface;
 use OpenTelemetry\Context\Context;
 
 final readonly class OtelTracer implements TracerInterface
 {
-    public function __construct(private TracerInterface $innerTracer)
-    {
-    }
+    public function __construct(private TracerInterface $innerTracer) {}
 
     public function spanBuilder(string $spanName): SpanBuilderInterface
     {

@@ -10,12 +10,6 @@ use ZeroBoiler\Observability\Span;
 final class RedisInstrumentation extends BaseInstrumentation
 {
     #[\Override]
-    protected function getKey(): string
-    {
-        return 'redis';
-    }
-
-    #[\Override]
     public function register(): void
     {
         Redis::enableEvents();
@@ -29,5 +23,11 @@ final class RedisInstrumentation extends BaseInstrumentation
                 'db.redis.connection' => $event->connection?->getName(),
             ])->end();
         });
+    }
+
+    #[\Override]
+    protected function getKey(): string
+    {
+        return 'redis';
     }
 }

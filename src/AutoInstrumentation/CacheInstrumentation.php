@@ -14,12 +14,6 @@ use ZeroBoiler\Observability\Span;
 final class CacheInstrumentation extends BaseInstrumentation
 {
     #[\Override]
-    protected function getKey(): string
-    {
-        return 'cache';
-    }
-
-    #[\Override]
     public function register(): void
     {
         Event::listen(CacheHit::class, function (CacheHit $event): void {
@@ -55,5 +49,11 @@ final class CacheInstrumentation extends BaseInstrumentation
                 'cache.operation' => 'delete',
             ])->end();
         });
+    }
+
+    #[\Override]
+    protected function getKey(): string
+    {
+        return 'cache';
     }
 }

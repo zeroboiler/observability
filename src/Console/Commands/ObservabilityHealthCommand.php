@@ -24,7 +24,7 @@ final class ObservabilityHealthCommand extends Command
             'liveness' => $checker->liveness(),
             'readiness' => $checker->readiness(),
             'startup' => $checker->startup(),
-            default => $this->error('Invalid health check type: ' . $type) ?? null,
+            default => $this->error('Invalid health check type: '.$type) ?? null,
         };
 
         if (! $result) {
@@ -38,7 +38,7 @@ final class ObservabilityHealthCommand extends Command
 
     private function displayHealthResult(HealthResult $result): void
     {
-        $this->info('Health Status: ' . $result->status);
+        $this->info('Health Status: '.$result->status);
 
         $this->table(
             ['Check', 'Status', 'Output'],

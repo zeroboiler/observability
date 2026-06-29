@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability;
 
+use Closure;
 use OpenTelemetry\API\Trace\SpanInterface as OtelSpanInterface;
-use OpenTelemetry\API\Trace\SpanBuilderInterface;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
-use OpenTelemetry\Context\ContextInterface;
-use Closure;
 
 final readonly class Span
 {
-    private function __construct(private OtelSpanInterface $innerSpan)
-    {
-    }
+    private function __construct(private OtelSpanInterface $innerSpan) {}
 
     public static function current(): self
     {

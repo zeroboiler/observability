@@ -47,7 +47,7 @@ final class Gauge
     /**
      * Generate a cache key from the merged attribute set.
      *
-     * @param array<string, mixed> $additionalAttributes
+     * @param  array<string, mixed>  $additionalAttributes
      */
     private function attributeKey(array $additionalAttributes): string
     {

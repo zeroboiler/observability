@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability\Tests;
 
-use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Config\Repository;
-use Illuminate\Support\Facades\Facade;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Foundation\Exceptions\Handler;
+use Illuminate\Support\Facades\Facade;
 use ZeroBoiler\Observability\ObservabilityServiceProvider;
 
 trait CreatesApplication
@@ -69,7 +69,7 @@ trait CreatesApplication
             ],
         ]));
 
-        $app->setBasePath(__DIR__ . '/..');
+        $app->setBasePath(__DIR__.'/..');
 
         // Bind console kernel for Artisan facade
         $app->singleton(ConsoleKernelContract::class, ConsoleKernel::class);

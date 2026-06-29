@@ -6,16 +6,15 @@ namespace ZeroBoiler\Observability;
 
 use Illuminate\Support\ServiceProvider;
 use OpenTelemetry\API\Trace\TracerInterface;
-use OpenTelemetry\Context\ContextInterface;
+use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\DatabaseInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\HttpInstrumentation;
+use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\QueueInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\RedisInstrumentation;
-use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
-use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
+use ZeroBoiler\Observability\Console\Commands\ObservabilityFlushCommand;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityHealthCommand;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityTraceTestCommand;
-use ZeroBoiler\Observability\Console\Commands\ObservabilityFlushCommand;
 
 final class ObservabilityServiceProvider extends ServiceProvider
 {
@@ -23,7 +22,7 @@ final class ObservabilityServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/observability.php',
+            __DIR__.'/../config/observability.php',
             'zeroboiler.observability'
         );
 
@@ -42,7 +41,7 @@ final class ObservabilityServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/observability.php' => config_path('zeroboiler/observability.php'),
+            __DIR__.'/../config/observability.php' => config_path('zeroboiler/observability.php'),
         ], 'observability-config');
 
         if ($this->app->runningInConsole()) {

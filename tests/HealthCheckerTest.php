@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use ZeroBoiler\Observability\HealthChecker;
 use ZeroBoiler\Observability\HealthResult;
-use ZeroBoiler\Observability\Tests\Pest;
 
 test('liveness check passes', function (): void {
     $checker = app(HealthChecker::class);

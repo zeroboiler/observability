@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\Observability\AutoInstrumentation\HttpInstrumentation;
+use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\DatabaseInstrumentation;
+use ZeroBoiler\Observability\AutoInstrumentation\HttpInstrumentation;
+use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\QueueInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\RedisInstrumentation;
-use ZeroBoiler\Observability\AutoInstrumentation\MailInstrumentation;
-use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
-use ZeroBoiler\Observability\Tests\Pest;
 
 beforeEach(function (): void {
     // Set the config that the instrumentations check via isEnabled()

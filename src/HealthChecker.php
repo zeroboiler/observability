@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Observability;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
 final class HealthChecker
@@ -63,7 +63,7 @@ final class HealthChecker
         } catch (\Throwable $throwable) {
             $checks['otel_init'] = [
                 'status' => 'fail',
-                'output' => 'OpenTelemetry init failed: ' . $throwable->getMessage(),
+                'output' => 'OpenTelemetry init failed: '.$throwable->getMessage(),
             ];
         }
 
@@ -84,7 +84,7 @@ final class HealthChecker
         } catch (\Throwable $throwable) {
             return [
                 'status' => 'fail',
-                'output' => 'Database connection failed: ' . $throwable->getMessage(),
+                'output' => 'Database connection failed: '.$throwable->getMessage(),
             ];
         }
     }
@@ -108,7 +108,7 @@ final class HealthChecker
         } catch (\Throwable $throwable) {
             return [
                 'status' => 'fail',
-                'output' => 'Cache check failed: ' . $throwable->getMessage(),
+                'output' => 'Cache check failed: '.$throwable->getMessage(),
             ];
         }
     }
@@ -125,7 +125,7 @@ final class HealthChecker
         } catch (\Throwable $throwable) {
             return [
                 'status' => 'fail',
-                'output' => 'Queue check failed: ' . $throwable->getMessage(),
+                'output' => 'Queue check failed: '.$throwable->getMessage(),
             ];
         }
     }

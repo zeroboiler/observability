@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\Observability\Observability;
 use Illuminate\Support\Facades\Artisan;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityHealthCommand;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityTraceTestCommand;
+use ZeroBoiler\Observability\Observability;
 
 /**
  * Run an Artisan command, then remove any extra error/exception handlers
@@ -25,6 +25,7 @@ function runArtisanAndCleanHandlers(string $command, array $parameters = []): in
     for ($i = 0; $i < 5; $i++) {
         $errorNow = set_error_handler(fn (): true => true);
         restore_error_handler();
+
         if ($errorNow === $errorBefore) {
             break;
         }
@@ -35,6 +36,7 @@ function runArtisanAndCleanHandlers(string $command, array $parameters = []): in
     for ($i = 0; $i < 5; $i++) {
         $exceptionNow = set_exception_handler(fn (): true => true);
         restore_exception_handler();
+
         if ($exceptionNow === $exceptionBefore) {
             break;
         }

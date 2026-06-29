@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\Observability\Observability;
 use ZeroBoiler\Observability\HealthChecker;
 use ZeroBoiler\Observability\MetricsRegistry;
+use ZeroBoiler\Observability\Observability;
 use ZeroBoiler\Observability\ObservabilityServiceProvider;
-use ZeroBoiler\Observability\Tests\Pest;
 
 test('service provider registers observability', function (): void {
     $app = app();

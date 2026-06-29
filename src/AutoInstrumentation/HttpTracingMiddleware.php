@@ -6,8 +6,6 @@ namespace ZeroBoiler\Observability\AutoInstrumentation;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use ZeroBoiler\Observability\Span;
 
@@ -38,6 +36,7 @@ final class HttpTracingMiddleware
 
         // Enrich with route name if available
         $route = $request->route();
+
         if ($route !== null) {
             $span->setAttribute('http.route', $route->getName() ?? $request->path());
         }
@@ -45,9 +44,9 @@ final class HttpTracingMiddleware
         $span->setAttribute('http.status_code', $response->getStatusCode());
 
         if ($response->getStatusCode() >= 500) {
-            $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
+            $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP '.$response->getStatusCode());
         } elseif ($response->getStatusCode() >= 400) {
-            $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP ' . $response->getStatusCode());
+            $span->setStatus(StatusCode::STATUS_ERROR, 'HTTP '.$response->getStatusCode());
         } else {
             $span->setStatus(StatusCode::STATUS_OK);
         }
@@ -65,9 +64,9 @@ final class HttpTracingMiddleware
         $route = $request->route();
 
         if ($route !== null && $route->getName() !== null) {
-            return 'http.server ' . $route->getName();
+            return 'http.server '.$route->getName();
         }
 
-        return 'http.server ' . $request->method() . ' ' . $request->path();
+        return 'http.server '.$request->method().' '.$request->path();
     }
 }

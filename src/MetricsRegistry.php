@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace ZeroBoiler\Observability;
 
 use OpenTelemetry\API\Metrics\MeterInterface;
+use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Metrics\MeterProvider;
 use OpenTelemetry\SDK\Metrics\MeterProviderFactory;
-use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 
 final class MetricsRegistry
@@ -29,7 +29,7 @@ final class MetricsRegistry
             'service.version' => config('zeroboiler.observability.service_version', '1.0.0'),
         ]));
 
-        $factory = new MeterProviderFactory();
+        $factory = new MeterProviderFactory;
         $this->meterProvider = $factory->create($resource);
         $this->meter = $this->meterProvider->getMeter('zeroboiler-metrics');
     }

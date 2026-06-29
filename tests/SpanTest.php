@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use ZeroBoiler\Observability\Span;
-use ZeroBoiler\Observability\Tests\Pest;
 
 test('span creates and ends', function (): void {
     $span = Span::start('test.span');
@@ -40,7 +39,7 @@ test('span adds events', function (): void {
 test('span records exception', function (): void {
     $span = Span::start('test.exception');
 
-    $exception = new \RuntimeException('Test exception');
+    $exception = new RuntimeException('Test exception');
 
     $span->recordException($exception);
 
@@ -53,11 +52,11 @@ test('span trace method catches exceptions', function (): void {
     $result = Span::trace('test.trace', function (Span $span): void {
         $span->setAttribute('test', 'value');
 
-        throw new \RuntimeException('Test exception');
+        throw new RuntimeException('Test exception');
     });
 
     expect($result)->toBeNull();
-})->throws(\RuntimeException::class, 'Test exception');
+})->throws(RuntimeException::class, 'Test exception');
 
 test('span trace method returns result', function (): void {
     $result = Span::trace('test.trace', function (Span $span): string {

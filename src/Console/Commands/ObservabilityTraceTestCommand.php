@@ -27,15 +27,15 @@ final class ObservabilityTraceTestCommand extends Command
         }
 
         $this->newLine();
-        $this->info("✓ Test traces sent to backend");
-        $this->comment("Check your OTel backend (Jaeger, Tempo, etc.) for the traces");
+        $this->info('✓ Test traces sent to backend');
+        $this->comment('Check your OTel backend (Jaeger, Tempo, etc.) for the traces');
 
         return Command::SUCCESS;
     }
 
     private function runTestOperation(int $index): void
     {
-        Span::trace('test_operation_' . $index, function (Span $span) use ($index): void {
+        Span::trace('test_operation_'.$index, function (Span $span) use ($index): void {
             $span->setAttribute('test.index', $index);
             $span->setAttribute('test.timestamp', now()->toIso8601String());
 

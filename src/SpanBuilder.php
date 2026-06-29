@@ -12,9 +12,7 @@ final class SpanBuilder
 {
     private ?int $spanKind = null;
 
-    public function __construct(private readonly OtelSpanBuilderInterface $innerBuilder)
-    {
-    }
+    public function __construct(private readonly OtelSpanBuilderInterface $innerBuilder) {}
 
     /**
      * Set the span kind (SERVER, CLIENT, INTERNAL, CONSUMER, PRODUCER).

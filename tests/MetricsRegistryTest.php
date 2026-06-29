@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\Observability\MetricsRegistry;
 use ZeroBoiler\Observability\Counter;
 use ZeroBoiler\Observability\Gauge;
 use ZeroBoiler\Observability\Histogram;
-use ZeroBoiler\Observability\Tests\Pest;
+use ZeroBoiler\Observability\MetricsRegistry;
 
 test('metrics registry creates counter', function (): void {
     $registry = app(MetricsRegistry::class);
@@ -21,7 +20,7 @@ test('counter increments', function (): void {
 
     $counter = $registry->counter('test.counter_increment');
 
-    expect(fn () => $counter->increment())->not->toThrow(\Exception::class);
+    expect(fn () => $counter->increment())->not->toThrow(Exception::class);
 });
 
 test('counter increments with amount', function (): void {
@@ -29,7 +28,7 @@ test('counter increments with amount', function (): void {
 
     $counter = $registry->counter('test.counter_amount');
 
-    expect(fn () => $counter->increment(5))->not->toThrow(\Exception::class);
+    expect(fn () => $counter->increment(5))->not->toThrow(Exception::class);
 });
 
 test('counter with attributes', function (): void {
@@ -38,7 +37,7 @@ test('counter with attributes', function (): void {
     $counter = $registry->counter('test.counter_attributes')
         ->withAttributes(['label' => 'test']);
 
-    expect(fn () => $counter->increment())->not->toThrow(\Exception::class);
+    expect(fn () => $counter->increment())->not->toThrow(Exception::class);
 });
 
 test('metrics registry creates gauge', function (): void {
@@ -54,8 +53,8 @@ test('gauge increments and decrements', function (): void {
 
     $gauge = $registry->gauge('test.gauge_inc_dec');
 
-    expect(fn () => $gauge->increment())->not->toThrow(\Exception::class);
-    expect(fn () => $gauge->decrement())->not->toThrow(\Exception::class);
+    expect(fn () => $gauge->increment())->not->toThrow(Exception::class);
+    expect(fn () => $gauge->decrement())->not->toThrow(Exception::class);
 });
 
 test('gauge sets value', function (): void {
@@ -63,7 +62,7 @@ test('gauge sets value', function (): void {
 
     $gauge = $registry->gauge('test.gauge_set');
 
-    expect(fn () => $gauge->set(42))->not->toThrow(\Exception::class);
+    expect(fn () => $gauge->set(42))->not->toThrow(Exception::class);
 });
 
 test('metrics registry creates histogram', function (): void {
@@ -79,11 +78,11 @@ test('histogram records values', function (): void {
 
     $histogram = $registry->histogram('test.histogram_record');
 
-    expect(fn () => $histogram->record(123.45))->not->toThrow(\Exception::class);
+    expect(fn () => $histogram->record(123.45))->not->toThrow(Exception::class);
 });
 
 test('metrics registry flushes', function (): void {
     $registry = app(MetricsRegistry::class);
 
-    expect(fn () => $registry->flush())->not->toThrow(\Exception::class);
+    expect(fn () => $registry->flush())->not->toThrow(Exception::class);
 });

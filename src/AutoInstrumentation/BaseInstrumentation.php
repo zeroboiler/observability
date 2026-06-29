@@ -19,10 +19,10 @@ abstract class BaseInstrumentation
             return false;
         }
 
-        return (bool) config('zeroboiler.observability.auto_instrumentation.' . $this->getKey() . '.enabled', true);
+        return (bool) config('zeroboiler.observability.auto_instrumentation.'.$this->getKey().'.enabled', true);
     }
 
-    abstract protected function getKey(): string;
-
     abstract public function register(): void;
+
+    abstract protected function getKey(): string;
 }
