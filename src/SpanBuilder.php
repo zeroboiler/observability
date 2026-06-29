@@ -49,10 +49,6 @@ final class SpanBuilder
 
     public function setAttribute(string $key, string|int|float|bool|array|null $value): self
     {
-        if (is_array($value)) {
-            $value = json_encode($value);
-        }
-
         $this->innerBuilder->setAttribute($key, $value);
 
         return $this;

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Observability;
 
 use Illuminate\Support\ServiceProvider;
-use OpenTelemetry\API\Trace\TracerInterface;
 use ZeroBoiler\Observability\AutoInstrumentation\CacheInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\DatabaseInstrumentation;
 use ZeroBoiler\Observability\AutoInstrumentation\HttpInstrumentation;
@@ -30,7 +29,9 @@ final class ObservabilityServiceProvider extends ServiceProvider
         $this->app->alias(Observability::class, 'observability');
 
         $this->app->singleton(OtelTracer::class);
-        $this->app->alias(OtelTracer::class, TracerInterface::class);
+        // Bind OtelTracer concretely; do NOT alias as TracerInterface
+        // to allow other tracer implementations. Consumers should type-hint
+        // OtelTracer or use Observability::getTracer().
 
         $this->app->singleton(HealthChecker::class);
         $this->app->singleton(MetricsRegistry::class);

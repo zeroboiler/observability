@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace ZeroBoiler\Observability;
 
 use Closure;
+use OpenTelemetry\API\Trace\Span as OtelSpan;
 use OpenTelemetry\API\Trace\SpanInterface as OtelSpanInterface;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\Context\Context;
 
 final readonly class Span
 {
@@ -15,10 +17,7 @@ final readonly class Span
 
     public static function current(): self
     {
-        $observability = app(Observability::class);
-        $tracer = $observability->getTracer();
-
-        return new self($tracer->getCurrentSpan());
+        return new self(OtelSpan::fromContext(Context::getCurrent()));
     }
 
     public static function start(string $name, ?string $kind = null, array $attributes = []): self
@@ -42,10 +41,6 @@ final readonly class Span
         }
 
         foreach ($attributes as $key => $value) {
-            if (is_array($value)) {
-                $value = json_encode($value);
-            }
-
             $builder->setAttribute($key, $value);
         }
 
@@ -79,10 +74,6 @@ final readonly class Span
 
     public function setAttribute(string $key, string|int|float|bool|array|null $value): self
     {
-        if (is_array($value)) {
-            $value = json_encode($value);
-        }
-
         $this->innerSpan->setAttribute($key, $value);
 
         return $this;
