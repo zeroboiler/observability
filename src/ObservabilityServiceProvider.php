@@ -57,10 +57,12 @@ final class ObservabilityServiceProvider extends ServiceProvider
         $this->registerLoggingBridge();
     }
 
-    private function registerFacades(): void
-    {
-        $this->app->singleton('observability.span', fn (): Span => Span::current());
-    }
+   private function registerFacades(): void
+   {
+        // Use bind() instead of singleton() so Span::current() is resolved
+        // fresh each time — the active span changes during request lifecycle.
+        $this->app->bind('observability.span', fn (): Span => Span::current());
+   }
 
     private function registerAutoInstrumentation(): void
     {
