@@ -7,35 +7,64 @@ use Illuminate\Support\Facades\Artisan;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityHealthCommand;
 use ZeroBoiler\Observability\Console\Commands\ObservabilityTraceTestCommand;
 
+/**
+ * Run an Artisan command, then remove any extra error/exception handlers
+ * that Artisan registered during the call.
+ */
+function runArtisanAndCleanHandlers(string $command, array $parameters = []): int
+{
+    // Capture handler stacks before
+    $errorBefore = set_error_handler(fn (): true => true);
+    restore_error_handler();
+    $exceptionBefore = set_exception_handler(fn (): true => true);
+    restore_exception_handler();
+
+    $exitCode = Artisan::call($command, $parameters);
+
+    // Iteratively pop handlers until we're back to the pre-call state
+    for ($i = 0; $i < 5; $i++) {
+        $errorNow = set_error_handler(fn (): true => true);
+        restore_error_handler();
+        if ($errorNow === $errorBefore) {
+            break;
+        }
+
+        restore_error_handler(); // pop one handler
+    }
+
+    for ($i = 0; $i < 5; $i++) {
+        $exceptionNow = set_exception_handler(fn (): true => true);
+        restore_exception_handler();
+        if ($exceptionNow === $exceptionBefore) {
+            break;
+        }
+
+        restore_exception_handler();
+    }
+
+    return $exitCode;
+}
+
 test('health command runs successfully', function (): void {
-    $exitCode = Artisan::call(ObservabilityHealthCommand::class, ['type' => 'liveness']);
+    $exitCode = runArtisanAndCleanHandlers(ObservabilityHealthCommand::class, ['type' => 'liveness']);
     expect($exitCode)->toBe(0);
 });
 
 test('health command with readiness', function (): void {
-    // Readiness checks db, cache, queue which may not all be available in test env.
-    // We just verify the command runs without fatal errors.
-    $exitCode = Artisan::call(ObservabilityHealthCommand::class, ['type' => 'readiness']);
+    $exitCode = runArtisanAndCleanHandlers(ObservabilityHealthCommand::class, ['type' => 'readiness']);
     expect($exitCode)->toBeIn([0, 1]);
 });
 
 test('health command with startup', function (): void {
-    // Startup runs readiness checks (db, cache, queue) which may fail in test env.
-    // We just verify the command runs without fatal errors.
-    $exitCode = Artisan::call(ObservabilityHealthCommand::class, ['type' => 'startup']);
+    $exitCode = runArtisanAndCleanHandlers(ObservabilityHealthCommand::class, ['type' => 'startup']);
     expect($exitCode)->toBeIn([0, 1]);
 });
 
 test('trace test command runs successfully', function (): void {
-    // Set up a clean observability instance for this test
     $observability = app(Observability::class);
     $observability->initialize();
 
-    $exitCode = Artisan::call(ObservabilityTraceTestCommand::class, ['operations' => 3]);
-
-    // Clean up any error handlers set up by Artisan
-    restore_error_handler();
-    restore_exception_handler();
+    $exitCode = runArtisanAndCleanHandlers(ObservabilityTraceTestCommand::class, ['operations' => 3]);
 
     expect($exitCode)->toBe(0);
 });

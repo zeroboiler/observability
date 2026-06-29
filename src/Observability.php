@@ -11,11 +11,12 @@ use OpenTelemetry\API\Trace\SpanContextInterface;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\SDK\Common\Export\Stream\StreamTransport;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
+use OpenTelemetry\SDK\Common\Time\ClockFactory;
+use OpenTelemetry\SDK\Common\Time\ClockInterface;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Trace\TracerProviderInterface;
 use OpenTelemetry\Contrib\Otlp\SpanExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
-use OpenTelemetry\Contrib\Otlp\OtlpGrpcTransportFactory;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
 use OpenTelemetry\SDK\Trace\SpanExporter\ConsoleSpanExporter;
@@ -52,8 +53,10 @@ final class Observability
 
         $exporter = $this->createExporter();
 
+        $clock = ClockFactory::getDefault();
+
         $processor = config('zeroboiler.observability.exporter.batch_enabled', true)
-            ? new BatchSpanProcessor($exporter)
+            ? new BatchSpanProcessor($exporter, $clock)
             : new SimpleSpanProcessor($exporter);
 
         $this->tracerProvider = TracerProvider::builder()
@@ -86,28 +89,18 @@ final class Observability
         $endpoint = config('zeroboiler.observability.exporter.otlp.endpoint', 'http://localhost:4318/v1/traces');
         $protocol = config('zeroboiler.observability.exporter.otlp.protocol', 'http/protobuf');
         $headers = config('zeroboiler.observability.exporter.otlp.headers', []);
+        if (!is_array($headers)) {
+            $headers = array_filter(array_map(trim(...), explode(',', (string) $headers)));
+        }
+
         $timeout = config('zeroboiler.observability.exporter.otlp.timeout', 10);
 
-        // Use modern transport factories instead of deprecated OtlpUtil
-        if (str_starts_with((string) $protocol, 'grpc')) {
-            $transport = new OtlpGrpcTransportFactory()
-                ->withEndpoint($endpoint)
-                ->withHeaders($headers)
-                ->withTimeout($timeout)
-                ->create();
-        } else {
-            // Default: http/protobuf or http/json
-            $transport = new OtlpHttpTransportFactory()
-                ->withEndpoint($endpoint)
-                ->withHeaders($headers)
-                ->withTimeout($timeout)
-                ->withContentType(
-                    $protocol === 'http/json'
-                        ? 'application/json'
-                        : 'application/x-protobuf'
-                )
-                ->create();
-        }
+        $contentType = $protocol === 'http/json'
+            ? 'application/json'
+            : 'application/x-protobuf';
+
+        $transport = new OtlpHttpTransportFactory()
+            ->create($endpoint, $contentType, $headers, null, $timeout);
 
         return new SpanExporter($transport);
     }

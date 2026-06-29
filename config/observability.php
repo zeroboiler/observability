@@ -43,7 +43,7 @@ return [
         'otlp' => [
             'endpoint' => env('OTEL_EXPORTER_OTLP_ENDPOINT', 'http://localhost:4318/v1/traces'),
             'protocol' => env('OTEL_EXPORTER_OTLP_PROTOCOL', 'http/protobuf'),
-            'headers' => env('OTEL_EXPORTER_OTLP_HEADERS', ''),
+            'headers' => array_filter(array_map('trim', explode(',', env('OTEL_EXPORTER_OTLP_HEADERS', '')))),
             'timeout' => env('OTEL_EXPORTER_OTLP_TIMEOUT', 10),
         ],
     ],
