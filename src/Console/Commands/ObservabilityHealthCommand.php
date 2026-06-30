@@ -20,12 +20,12 @@ final class ObservabilityHealthCommand extends Command
     {
         $type = $this->argument('type');
 
-       $result = match ($type) {
-           'liveness' => $checker->liveness(),
-           'readiness' => $checker->readiness(),
-           'startup' => $checker->startup(),
-           default => $this->error('Invalid health check type: '.$type) ?? null,
-       };
+        $result = match ($type) {
+            'liveness' => $checker->liveness(),
+            'readiness' => $checker->readiness(),
+            'startup' => $checker->startup(),
+            default => $this->error('Invalid health check type: '.$type) ?? null,
+        };
 
         if (! $result instanceof HealthResult) {
             return Command::FAILURE;
